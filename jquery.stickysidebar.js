@@ -1,11 +1,15 @@
 /**
- * Sticky Sidebar
- * Plugin to handle sticky sidebars
- * Author: Ca-Phun Ung < caphun at yelotofu dot com >
+ * jQuery stickySidebar
  *
- * TODO : Need to clean up code
+ * Copyright (c) 2011 Ca-Phun Ung <caphun at yelotofu dot com>
+ * Licensed under the MIT (MIT-LICENSE.txt) license.
+ *
+ * http://github.com/caphun/jquery.stickysidebar/
+ *
+ * Plugin to handle sticky sidebars.
  *
  */
+
 (function($){
 
   $.fn.stickySidebar = function( options ) {
