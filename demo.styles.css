@@ -1,7 +1,8 @@
 body { margin: 0; padding: 0; background: #C3C4BA; color: #555; font: 12px/18px "Lucida Grande", "Lucida Sans Unicode", Helvetica, Arial, Verdana, sans-serif; }
 #header { height: 65px; background: #B7CF4A; overflow:hidden; }
-#content { background: #fff; }
+#content { background: #fff; padding: 20px; }
 #footer { height: 100px; padding: 50px; }
-#main { height: 1000px; width: 480px; float: left; margin-right: 20px; border: 1px solid #dfdbc6; overflow: hidden; padding: 50px; }
+#main { height: 900px; width: 480px; float: left; margin-right: 20px; border: 1px solid #dfdbc6; overflow: hidden; padding: 50px; }
+#main h1 { margin-top: 200px; }
 #sidebar { height: 450px; width: 160px; float: left; display: inline; border: 5px dashed #dfdbc6; overflow: hidden; padding: 20px; }
 .container { overflow: hidden; position: relative; width: 960px; }
