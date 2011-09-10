@@ -43,7 +43,7 @@ $.stickySidebar = function( elem, options ) {
 
 // plugin defaults
 $.stickySidebar.defaults = {
-  top: 0
+  gutter: 0 // defines the space to leave above the sidebar when it's sticky - default 0
 }
 
 // plugin prototypes
@@ -72,7 +72,7 @@ $.stickySidebar.prototype = {
         down = (scrollTop > elem.data(stickyPrevScrollTop));
 
     return elem.css( 
-        scrollTop > pTop - this.options.top
+        scrollTop > pTop - this.options.gutter
         && ( (down && (pTop + pHeight > elemTop + elemHeight)) || (!down && scrollTop <= elemTop) )
 
         // sticky
@@ -84,8 +84,8 @@ $.stickySidebar.prototype = {
         // not sticky
         : { 
             position: 'absolute', 
-            top: (pTop + pHeight <= elemTop + elemHeight ? pHeight - elemHeight : 0) - this.options.top, 
-            marginTop: this.options.top 
+            top: (pTop + pHeight <= elemTop + elemHeight ? pHeight - elemHeight : 0) - this.options.gutter, 
+            marginTop: this.options.gutter 
           }
         );
   }
