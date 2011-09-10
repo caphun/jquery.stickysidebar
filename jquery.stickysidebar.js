@@ -12,20 +12,20 @@
 
     return this.each(function() {
 
-      var $sidebar = $(this).data('prevScrollTop', -1), topPadding = options.top;
+      var $sidebar = $(this).data('prevScrollTop', -1), o = $.extend({}, options, $.stickysidebar.defaults);
 
       $(window).bind('scroll', function() {
         var scrollTop = $(window).scrollTop(),
             containerTop = $sidebar.offset().top,
-            containerHeight = $sidebar.height(),
+            containerHeight = $sidebar.outerHeight(),
             parentTop = $sidebar.parent().offset().top,
-            parentHeight = $sidebar.parent().height(),
+            parentHeight = $sidebar.parent().outerHeight(),
             down = (scrollTop > $sidebar.data('prevScrollTop')),
             top = parentTop + parentHeight <= containerTop + containerHeight ? parentHeight - containerHeight : 0,
-            sticky = scrollTop > parentTop - topPadding
+            sticky = scrollTop > parentTop - o.top
                 && ( (down && (parentTop + parentHeight > containerTop + containerHeight)) || (!down && scrollTop <= containerTop) )
                 ? { position: 'fixed', top: 0 }
-                : { position: 'absolute', top: top-topPadding, marginTop: topPadding };
+                : { position: 'absolute', top: top-o.top, marginTop: o.top };
 
         // here's the magic!
         $sidebar
@@ -35,6 +35,12 @@
       });
 
     });
+  };
+  
+  $.stickysidebar = function() {};
+
+  $.stickysidebar.defaults = {
+    top: 20
   };
 
 })(jQuery);
