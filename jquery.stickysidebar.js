@@ -12,39 +12,84 @@
 
 (function($){
 
-  $.fn.stickySidebar = function( options ) {
+// cached values
+var namespace = '.stickySidebar', 
+    stickyPrevScrollTop = 'prevScrollTop'+namespace;
 
-    return this.each(function() {
+// define stickySidebar method
+$.fn.stickySidebar = function( options ) {
 
-      var $sidebar = $(this).data('prevScrollTop', -1), o = $.extend({}, options, $.stickysidebar.defaults);
+  return this.each(function() {
 
-      $(window).bind('scroll', function() {
-        var scrollTop = $(window).scrollTop(),
-            containerTop = $sidebar.offset().top,
-            containerHeight = $sidebar.outerHeight(),
-            parentTop = $sidebar.parent().offset().top,
-            parentHeight = $sidebar.parent().outerHeight(),
-            down = (scrollTop > $sidebar.data('prevScrollTop')),
-            top = parentTop + parentHeight <= containerTop + containerHeight ? parentHeight - containerHeight : 0,
-            sticky = scrollTop > parentTop - o.top
-                && ( (down && (parentTop + parentHeight > containerTop + containerHeight)) || (!down && scrollTop <= containerTop) )
-                ? { position: 'fixed', top: 0 }
-                : { position: 'absolute', top: top-o.top, marginTop: o.top };
+    new $.stickySidebar( this, options );
 
-        // here's the magic!
-        $sidebar
-          .css( sticky )
-          .data('prevScrollTop', scrollTop);
+  });
 
-      });
+}
 
+// plugin constructor
+$.stickySidebar = function( elem, options ) {
+
+  // deep extend
+  this.options = $.extend(true, {}, $.stickySidebar.defaults, options );
+
+  // the original element | the parent element
+  this.element = $( elem );
+  this.parentElem = this.element.parent();
+
+  // run
+  this.init();
+}
+
+// plugin defaults
+$.stickySidebar.defaults = {
+  top: 0
+}
+
+// plugin prototypes
+$.stickySidebar.prototype = {
+
+  init: function() {
+
+    // define self
+    var self = this;
+
+    // cache previous scrollTop value
+    self.element.data(stickyPrevScrollTop, -1).css('display', 'inline');
+
+    // here comes the magic!
+    $( window ).bind('scroll'+namespace, function() {
+      self.stickiness().data(stickyPrevScrollTop, $(this).scrollTop());
     });
-  };
-  
-  $.stickysidebar = function() {};
 
-  $.stickysidebar.defaults = {
-    top: 20
-  };
+  },
+  
+  // actually, all the logic is here!!!
+  stickiness: function() {
+    var scrollTop = $( window ).scrollTop(),
+        elem = this.element, elemTop = elem.offset().top, elemHeight = elem.outerHeight(),
+        pTop = this.parentElem.offset().top, pHeight = this.parentElem.outerHeight(),
+        down = (scrollTop > elem.data(stickyPrevScrollTop));
+
+    return elem.css( 
+        scrollTop > pTop - this.options.top
+        && ( (down && (pTop + pHeight > elemTop + elemHeight)) || (!down && scrollTop <= elemTop) )
+
+        // sticky
+        ? { 
+            position: 'fixed', 
+            top: 0 
+          }
+
+        // not sticky
+        : { 
+            position: 'absolute', 
+            top: (pTop + pHeight <= elemTop + elemHeight ? pHeight - elemHeight : 0) - this.options.top, 
+            marginTop: this.options.top 
+          }
+        );
+  }
+
+}
 
 })(jQuery);
