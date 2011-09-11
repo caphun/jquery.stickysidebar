@@ -14,7 +14,9 @@
 
 // cached values
 var namespace = '.stickySidebar', 
-    stickyPrevScrollTop = 'prevScrollTop'+namespace;
+    stickyPrevScrollTop = 'prevScrollTop'+namespace,
+    stickyInitPosLeft = 'initPosLeft'+namespace,
+    stickyInitPosLeftGutter = 'initPosLeftGutter'+namespace;
 
 // define stickySidebar method
 $.fn.stickySidebar = function( options ) {
@@ -51,17 +53,11 @@ $.stickySidebar.prototype = {
 
   init: function() {
 
+    // save initial values
+    this.initValues();
+    
     // define self
     var self = this;
-
-    self.element
-
-      // cache previous scrollTop value
-      .data(stickyPrevScrollTop, -1)
-
-      // force display inline to leave the element in it's 
-      // position when switched to fixed|absolute
-      .css('display', 'inline');
 
     // here comes the magic!
     $( window ).bind('scroll'+namespace, function() {
@@ -69,7 +65,7 @@ $.stickySidebar.prototype = {
     });
 
   },
-  
+
   // actually, all the logic is here!!!
   stickiness: function() {
 
@@ -89,16 +85,28 @@ $.stickySidebar.prototype = {
         // sticky
         ? { 
             position: 'fixed', 
-            top: 0 
+            top: 0,
+            left: elem.data(stickyInitPosLeft) 
           }
 
         // not sticky
         : { 
             position: 'absolute', 
             top: (pTop + pHeight <= elemTop + elemHeight ? pHeight - elemHeight : 0) - this.options.gutter, 
-            marginTop: this.options.gutter 
+            marginTop: this.options.gutter,
+            left: elem.data(stickyInitPosLeft) - elem.data(stickyInitPosLeftGutter)
           }
         );
+  },
+
+  // save initial positions and values
+  initValues: function() {
+    this.element
+      // cache previous scrollTop value
+      .data(stickyPrevScrollTop, -1)
+      .data(stickyInitPosLeft, this.element.offset().left - parseInt(this.element.css('marginLeft')))
+      .data(stickyInitPosLeftGutter, this.element.offset().left - this.element.position().left)
+      .css({ position: 'absolute', left: this.element.position().left });
   }
 
 }
