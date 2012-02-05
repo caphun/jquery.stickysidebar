@@ -64,6 +64,11 @@ $.stickySidebar.prototype = {
       self.stickiness().data(stickyPrevScrollTop, $(this).scrollTop());
     });
 
+    // when browser window is resized, start over with new position
+    $( window ).resize(function() {
+        self.initValues(true);
+    });
+
   },
 
   // actually, all the logic is here!!!
@@ -100,13 +105,25 @@ $.stickySidebar.prototype = {
   },
 
   // save initial positions and values
-  initValues: function() {
-    this.element
-      // cache previous scrollTop value
-      .data(stickyPrevScrollTop, -1)
-      .data(stickyInitPosLeft, this.element.offset().left - parseInt(this.element.css('marginLeft')))
-      .data(stickyInitPosLeftGutter, this.element.offset().left - this.element.position().left)
-      .css({ position: 'absolute', left: this.element.position().left });
+  initValues: function(resized) {
+
+    var elem = this.element;
+    if (resized) {
+        // save the current top offset
+        var top = elem.offset().top;
+        // reset to natural position in resized window (with new left offset)
+        elem.css({ position: 'static' })
+        // move to old top, with new left
+        elem.offset({ top: top, left: elem.offset().left });
+    } else {
+        // reset scrollTop value
+        elem.data(stickyPrevScrollTop, -1)
+    }
+
+    elem
+      .data(stickyInitPosLeft, elem.offset().left - parseInt(elem.css('marginLeft')))
+      .data(stickyInitPosLeftGutter, elem.offset().left - elem.position().left)
+      .css({ position: 'absolute', left: elem.position().left });
   }
 
 }
