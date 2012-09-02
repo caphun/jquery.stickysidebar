@@ -16,7 +16,9 @@
 var namespace = '.stickySidebar', 
     stickyPrevScrollTop = 'prevScrollTop'+namespace,
     stickyInitPosLeft = 'initPosLeft'+namespace,
-    stickyInitPosLeftGutter = 'initPosLeftGutter'+namespace;
+    stickyInitPosLeftGutter = 'initPosLeftGutter'+namespace,
+    $window = $(window),
+    stickyTimeout;
 
 // define stickySidebar method
 $.fn.stickySidebar = function( options ) {
@@ -38,7 +40,8 @@ $.stickySidebar = function( elem, options ) {
   // the original element | the parent element
   this.element = $( elem );
   this.parentElem = this.element.parent();
-
+  this.naturalPosition = this.element.css('position');
+  
   // run
   this.init();
 }
@@ -60,13 +63,12 @@ $.stickySidebar.prototype = {
     var self = this;
 
     // here comes the magic!
-    $( window ).bind('scroll'+namespace, function() {
-      self.stickiness().data(stickyPrevScrollTop, $(this).scrollTop());
-    });
-
-    // when browser window is resized, start over with new position
-    $( window ).resize(function() {
-        self.initValues(true);
+    $window.bind(['resize'+namespace, 'scroll'+namespace].join(', '), function() {
+      // throttle execution (your cpu will like this!)
+      clearTimeout(stickyTimeout);
+      stickyTimeout = setTimeout(function(){
+        self.stickiness().data(stickyPrevScrollTop, $window.scrollTop());
+      }, 10);
     });
 
   },
@@ -74,11 +76,18 @@ $.stickySidebar.prototype = {
   // actually, all the logic is here!!!
   stickiness: function() {
 
-    var scrollTop = $( window ).scrollTop(),
+    var scrollTop = $window.scrollTop(),
         elem = this.element, elemTop = elem.offset().top, elemHeight = elem.outerHeight(),
         pTop = this.parentElem.offset().top, pHeight = this.parentElem.outerHeight(),
-        down = (scrollTop > elem.data(stickyPrevScrollTop));
+        down = (scrollTop > elem.data(stickyPrevScrollTop)),
+        // check natural flow left (useful on window resize and liquid columns)
+        naturalLeft = elem.css({position: 'static'}).offset().left;
 
+    // reset left position if natural flow left has changed and natural position is not absolute/fixed
+    if (naturalLeft !== elem.data(stickyInitPosLeft) && !/absolute|fixed/.test(this.naturalPosition)) {
+      elem.data(stickyInitPosLeft, naturalLeft);
+    }
+    
     return elem.css(
         // if reached the element minus some gutter space we're entering sticky territory.
         scrollTop > pTop - this.options.gutter
@@ -106,19 +115,7 @@ $.stickySidebar.prototype = {
 
   // save initial positions and values
   initValues: function(resized) {
-
     var elem = this.element;
-    if (resized) {
-        // save the current top offset
-        var top = elem.offset().top;
-        // reset to natural position in resized window (with new left offset)
-        elem.css({ position: 'static' })
-        // move to old top, with new left
-        elem.offset({ top: top, left: elem.offset().left });
-    } else {
-        // reset scrollTop value
-        elem.data(stickyPrevScrollTop, -1)
-    }
 
     elem
       .data(stickyInitPosLeft, elem.offset().left - parseInt(elem.css('marginLeft')))
